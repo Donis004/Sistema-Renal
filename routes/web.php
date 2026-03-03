@@ -5,6 +5,9 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\AdministradorController;
 use App\Http\Controllers\ComidaController;
 use App\Http\Controllers\AlimentoController;
+use App\Http\Controllers\PacienteController;
+use App\Http\Controllers\MedicamentoController;
+use App\Http\Controllers\PacienteMedicamentoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,8 +53,23 @@ Route::prefix('administrador')->name('administrador.')->group(function () {
     Route::post('/comidas/{id_comida}/agregar-alimento', [ComidaController::class, 'agregarAlimento'])->name('comidas.agregarAlimento');
     Route::delete('/comidas/eliminar-alimento/{id_detalle}', [ComidaController::class, 'eliminarAlimento'])->name('comidas.eliminarAlimento');
     
-    // Rutas de Pacientes
-    Route::get('/pacientes', [AdministradorController::class, 'pacientesIndex'])->name('pacientes.index');
+    // Rutas de Pacientes (CRUD completo)
+    Route::get('/pacientes', [PacienteController::class, 'index'])->name('pacientes.index');
+    Route::get('/pacientes/create', [PacienteController::class, 'create'])->name('pacientes.create');
+    Route::post('/pacientes', [PacienteController::class, 'store'])->name('pacientes.store');
+    Route::get('/pacientes/{id_paciente}', [PacienteController::class, 'show'])->name('pacientes.show');
+    Route::get('/pacientes/{id_paciente}/edit', [PacienteController::class, 'edit'])->name('pacientes.edit');
+    Route::put('/pacientes/{id_paciente}', [PacienteController::class, 'update'])->name('pacientes.update');
+    Route::delete('/pacientes/{id_paciente}', [PacienteController::class, 'destroy'])->name('pacientes.destroy');
+    
+    // Rutas de Medicamentos del Paciente
+    Route::get('/pacientes/{id_paciente}/medicamentos', [PacienteMedicamentoController::class, 'index'])->name('pacientes.medicamentos.index');
+    Route::get('/pacientes/{id_paciente}/medicamentos/create', [PacienteMedicamentoController::class, 'create'])->name('pacientes.medicamentos.create');
+    Route::post('/pacientes/{id_paciente}/medicamentos', [PacienteMedicamentoController::class, 'store'])->name('pacientes.medicamentos.store');
+    Route::get('/pacientes/{id_paciente}/medicamentos/{id_pm}/edit', [PacienteMedicamentoController::class, 'edit'])->name('pacientes.medicamentos.edit');
+    Route::put('/pacientes/{id_paciente}/medicamentos/{id_pm}', [PacienteMedicamentoController::class, 'update'])->name('pacientes.medicamentos.update');
+    Route::delete('/pacientes/{id_paciente}/medicamentos/{id_pm}', [PacienteMedicamentoController::class, 'destroy'])->name('pacientes.medicamentos.destroy');
+    Route::patch('/pacientes/{id_paciente}/medicamentos/{id_pm}/toggle-estado', [PacienteMedicamentoController::class, 'toggleEstado'])->name('pacientes.medicamentos.toggleEstado');
     
     // Rutas de Alimentos
     Route::get('/alimentos', [AlimentoController::class, 'index'])->name('alimentos.index');
@@ -62,8 +80,14 @@ Route::prefix('administrador')->name('administrador.')->group(function () {
     Route::put('/alimentos/{alimento}', [AlimentoController::class, 'update'])->name('alimentos.update');
     Route::delete('/alimentos/{alimento}', [AlimentoController::class, 'destroy'])->name('alimentos.destroy');
     
-    // Rutas de Medicamentos
-    Route::get('/medicamentos', [AdministradorController::class, 'medicamentosIndex'])->name('medicamentos.index');
+    // Rutas de Medicamentos (CRUD completo)
+    Route::get('/medicamentos', [MedicamentoController::class, 'index'])->name('medicamentos.index');
+    Route::get('/medicamentos/create', [MedicamentoController::class, 'create'])->name('medicamentos.create');
+    Route::post('/medicamentos', [MedicamentoController::class, 'store'])->name('medicamentos.store');
+    Route::get('/medicamentos/{id_medicamento}', [MedicamentoController::class, 'show'])->name('medicamentos.show');
+    Route::get('/medicamentos/{id_medicamento}/edit', [MedicamentoController::class, 'edit'])->name('medicamentos.edit');
+    Route::put('/medicamentos/{id_medicamento}', [MedicamentoController::class, 'update'])->name('medicamentos.update');
+    Route::delete('/medicamentos/{id_medicamento}', [MedicamentoController::class, 'destroy'])->name('medicamentos.destroy');
     
     // Rutas de Contenidos Educativos
     Route::get('/contenidos', [AdministradorController::class, 'contenidosIndex'])->name('contenidos.index');
