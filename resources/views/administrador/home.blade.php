@@ -270,14 +270,14 @@
 
 <script>
   // Variables desde PHP (asegurar valores seguros/numéricos)
-  var totalPacientes = {!! $totalPacientes ?? 0 !!};
-  var totalDoctores = {!! $totalDoctores ?? 0 !!};
-  var totalNutricionistas = {!! $totalNutricionistas ?? 0 !!};
-  var alertasPendientes = {!! $alertasPendientes ?? 0 !!};
-  var totalAlimentos = {!! $totalAlimentos ?? 0 !!};
-  var totalMedicamentos = {!! $totalMedicamentos ?? 0 !!};
-  var comidasHoy = {!! $comidasHoy ?? 0 !!};
-  var totalContenidos = {!! $totalContenidos ?? 0 !!};
+  //var totalPacientes = {!! $totalPacientes ?? 0 !!};
+  //var totalDoctores = {!! $totalDoctores ?? 0 !!};
+  //var totalNutricionistas = {!! $totalNutricionistas ?? 0 !!};
+  //var alertasPendientes = {!! $alertasPendientes ?? 0 !!};
+  //var totalAlimentos = {!! $totalAlimentos ?? 0 !!};
+  //var totalMedicamentos = {!! $totalMedicamentos ?? 0 !!};
+  //var comidasHoy = {!! $comidasHoy ?? 0 !!};
+  //var totalContenidos = {!! $totalContenidos ?? 0 !!};
 
   // Gráfico de Roles de Usuarios
   const rolesCtx = document.getElementById('rolesChart').getContext('2d');
