@@ -205,6 +205,10 @@
           <a href="{{ route('administrador.comidas.index') }}"><i class="bi bi-utensils"></i> Comidas</a>
           <a href="{{ route('administrador.alimentos.index') }}"><i class="bi bi-cup-hot"></i> Alimentos</a>
           <a href="{{ route('administrador.medicamentos.index') }}" class="active"><i class="bi bi-capsule"></i> Medicina</a>
+          <a href="{{ route('administrador.comorbilidades.index') }}"><i class="bi bi-heart-pulse"></i> Comorbilidades</a>
+          <a href="{{ route('administrador.alergias.index') }}"><i class="bi bi-exclamation-triangle"></i> Alergias</a>
+          <a href="{{ route('administrador.sintomas.index') }}"><i class="bi bi-thermometer"></i> Síntomas</a>
+          <a href="{{ route('administrador.recomendaciones.index') }}"><i class="bi bi-lightbulb"></i> Recomendaciones</a>
           <a href="{{ route('administrador.contenidos.index') }}"><i class="bi bi-book"></i> Contenido</a>
           <a href="{{ route('administrador.reportes.index') }}"><i class="bi bi-graph-up"></i> Reportes</a>
         </div>

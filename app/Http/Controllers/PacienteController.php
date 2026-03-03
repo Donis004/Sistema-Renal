@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Alergia;
+use App\Models\Comorbilidad;
 use App\Models\Paciente;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
@@ -61,9 +63,11 @@ class PacienteController extends Controller
      */
     public function edit($id_paciente)
     {
-        $paciente = Paciente::findOrFail($id_paciente);
+        $paciente = Paciente::with(['alergias', 'comorbilidades'])->findOrFail($id_paciente);
         $usuarios = Usuario::all();
-        return view('administrador.pacientes.edit', compact('paciente', 'usuarios'));
+        $comorbilidades = Comorbilidad::all();
+        $alergias = Alergia::all();
+        return view('administrador.pacientes.edit', compact('paciente', 'usuarios', 'comorbilidades', 'alergias'));
     }
 
     /**
@@ -83,9 +87,18 @@ class PacienteController extends Controller
             'egfr' => 'nullable|numeric|min:0',
             'dieta_prescrita' => 'nullable|string',
             'perfil_completo' => 'nullable|boolean',
+            'comorbilidades' => 'nullable|array',
+            'comorbilidades.*' => 'exists:comorbilidades,id_comorbilidad',
+            'alergias' => 'nullable|array',
+            'alergias.*' => 'exists:alergias,id_alergia',
         ]);
 
         $paciente->update($validated);
+        
+        // Sync comorbidities and allergies
+        $paciente->comorbilidades()->sync($request->input('comorbilidades', []));
+        $paciente->alergias()->sync($request->input('alergias', []));
+        
         return redirect()->route('administrador.pacientes.show', $paciente->id_paciente)->with('success', 'Paciente actualizado exitosamente.');
     }
 

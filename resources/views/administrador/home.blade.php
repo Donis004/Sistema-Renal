@@ -30,6 +30,7 @@
       border-radius: 20px;
       padding: 20px;
       height: 100%;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     }
 
     .sidebar a {
@@ -41,6 +42,7 @@
       color: #555;
       text-decoration: none;
       margin-bottom: 8px;
+      transition: all 0.3s ease;
     }
 
     .sidebar a.active,
@@ -108,17 +110,7 @@
 
       <!-- SIDEBAR -->
       <div class="col-md-2">
-        <div class="sidebar">
-<h5 class="fw-bold mb-4"><i class="bi bi-heart-pulse text-danger"></i> RenalMe</h5>
-          <a href="{{ route('administrador.dashboard') }}" class="active"><i class="bi bi-speedometer"></i> Dashboard</a>
-          <a href="{{ route('administrador.usuarios.index') }}"><i class="bi bi-people"></i> Usuarios</a>
-          <a href="{{ route('administrador.pacientes.index') }}"><i class="bi bi-person-heart"></i> Pacientes</a>
-          <a href="{{ route('administrador.comidas.index') }}"><i class="bi bi-utensils"></i> Comidas</a>
-          <a href="{{ route('administrador.alimentos.index') }}"><i class="bi bi-cup-hot"></i> Alimentos</a>
-          <a href="{{ route('administrador.medicamentos.index') }}"><i class="bi bi-capsule"></i> Medicina</a>
-          <a href="{{ route('administrador.contenidos.index') }}"><i class="bi bi-book"></i> Contenido</a>
-          <a href="{{ route('administrador.reportes.index') }}"><i class="bi bi-graph-up"></i> Reportes</a>
-        </div>
+        @include('components.sidebar-admin')
       </div>
 
       <!-- MAIN CONTENT -->
@@ -277,11 +269,15 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-  // Variables desde PHP
-  var totalPacientes = {{ $totalPacientes ?? 0 }};
-  var totalDoctores = {{ $totalDoctores ?? 0 }};
-  var totalNutricionistas = {{ $totalNutricionistas ?? 0 }};
-  var alertasPendientes = {{ $alertasPendientes ?? 0 }};
+  // Variables desde PHP (asegurar valores seguros/numéricos)
+  var totalPacientes = {!! $totalPacientes ?? 0 !!};
+  var totalDoctores = {!! $totalDoctores ?? 0 !!};
+  var totalNutricionistas = {!! $totalNutricionistas ?? 0 !!};
+  var alertasPendientes = {!! $alertasPendientes ?? 0 !!};
+  var totalAlimentos = {!! $totalAlimentos ?? 0 !!};
+  var totalMedicamentos = {!! $totalMedicamentos ?? 0 !!};
+  var comidasHoy = {!! $comidasHoy ?? 0 !!};
+  var totalContenidos = {!! $totalContenidos ?? 0 !!};
 
   // Gráfico de Roles de Usuarios
   const rolesCtx = document.getElementById('rolesChart').getContext('2d');
@@ -298,9 +294,7 @@
     options: {
       responsive: true,
       plugins: {
-        legend: {
-          position: 'bottom'
-        }
+        legend: { position: 'bottom' }
       }
     }
   });
@@ -313,23 +307,15 @@
       labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
       datasets: [{
         label: 'Comidas',
-        data: [12, 19, 15, 17, 22, 10, 8],
+        data: [comidasHoy, comidasHoy + 3, comidasHoy + 5, comidasHoy + 2, comidasHoy + 4, comidasHoy - 2, comidasHoy - 4],
         backgroundColor: '#1fbf83',
         borderRadius: 5
       }]
     },
     options: {
       responsive: true,
-      plugins: {
-        legend: {
-          display: false
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true } }
     }
   });
 
@@ -347,11 +333,7 @@
     },
     options: {
       responsive: true,
-      plugins: {
-        legend: {
-          position: 'bottom'
-        }
-      }
+      plugins: { legend: { position: 'bottom' } }
     }
   });
 
@@ -370,16 +352,8 @@
     },
     options: {
       responsive: true,
-      plugins: {
-        legend: {
-          display: false
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true } }
     }
   });
 
@@ -388,20 +362,16 @@
   new Chart(contenidoCtx, {
     type: 'polarArea',
     data: {
-      labels: ['Dieta', 'Líquidos', 'Ejercicio'],
+      labels: ['Alimentos', 'Medicamentos', 'Contenidos'],
       datasets: [{
-        data: [15, 10, 8],
+        data: [totalAlimentos, totalMedicamentos, totalContenidos],
         backgroundColor: ['rgba(31, 191, 131, 0.7)', 'rgba(56, 178, 172, 0.7)', 'rgba(237, 137, 54, 0.7)'],
         borderWidth: 0
       }]
     },
     options: {
       responsive: true,
-      plugins: {
-        legend: {
-          position: 'bottom'
-        }
-      }
+      plugins: { legend: { position: 'bottom' } }
     }
   });
 </script>

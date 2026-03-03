@@ -252,6 +252,67 @@
 
             <hr>
 
+            <!-- Condiciones de Salud -->
+            <h6 class="mb-4 fw-bold text-primary"><i class="bi bi-heart-pulse"></i> Condiciones de Salud</h6>
+            
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label">Comorbilidades</label>
+                <div class="border border-1 rounded-3 p-3" style="background-color: #f9fafb; min-height: 150px; max-height: 250px; overflow-y: auto;">
+                  @if($comorbilidades->count() > 0)
+                    @foreach($comorbilidades as $comorbilidad)
+                      <div class="form-check mb-2">
+                        <input 
+                          class="form-check-input" 
+                          type="checkbox" 
+                          id="comorbilidad_{{ $comorbilidad->id_comorbilidad }}" 
+                          name="comorbilidades[]" 
+                          value="{{ $comorbilidad->id_comorbilidad }}"
+                          {{ in_array($comorbilidad->id_comorbilidad, $paciente->comorbilidades->pluck('id_comorbilidad')->toArray()) ? 'checked' : '' }}>
+                        <label class="form-check-label" for="comorbilidad_{{ $comorbilidad->id_comorbilidad }}">
+                          {{ $comorbilidad->nombre }}
+                        </label>
+                      </div>
+                    @endforeach
+                  @else
+                    <p class="text-muted mb-0"><small>No hay comorbilidades registradas</small></p>
+                  @endif
+                </div>
+                @error('comorbilidades')
+                  <div class="invalid-feedback d-block">{{ $message }}</div>
+                @enderror
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Alergias</label>
+                <div class="border border-1 rounded-3 p-3" style="background-color: #f9fafb; min-height: 150px; max-height: 250px; overflow-y: auto;">
+                  @if($alergias->count() > 0)
+                    @foreach($alergias as $alergia)
+                      <div class="form-check mb-2">
+                        <input 
+                          class="form-check-input" 
+                          type="checkbox" 
+                          id="alergia_{{ $alergia->id_alergia }}" 
+                          name="alergias[]" 
+                          value="{{ $alergia->id_alergia }}"
+                          {{ in_array($alergia->id_alergia, $paciente->alergias->pluck('id_alergia')->toArray()) ? 'checked' : '' }}>
+                        <label class="form-check-label" for="alergia_{{ $alergia->id_alergia }}">
+                          {{ $alergia->nombre }}
+                        </label>
+                      </div>
+                    @endforeach
+                  @else
+                    <p class="text-muted mb-0"><small>No hay alergias registradas</small></p>
+                  @endif
+                </div>
+                @error('alergias')
+                  <div class="invalid-feedback d-block">{{ $message }}</div>
+                @enderror
+              </div>
+            </div>
+
+            <hr>
+
             <!-- Plan de Dieta -->
             <h6 class="mb-4 fw-bold text-primary"><i class="bi bi-cup-hot"></i> Plan de Dieta</h6>
             

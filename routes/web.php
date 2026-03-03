@@ -8,6 +8,12 @@ use App\Http\Controllers\AlimentoController;
 use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\MedicamentoController;
 use App\Http\Controllers\PacienteMedicamentoController;
+use App\Http\Controllers\ContenidoEducativoController;
+use App\Http\Controllers\RecomendacionController;
+use App\Http\Controllers\ReporteController;
+use App\Http\Controllers\ComorbillidadController;
+use App\Http\Controllers\AlergiaController;
+use App\Http\Controllers\SintomaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -90,10 +96,53 @@ Route::prefix('administrador')->name('administrador.')->group(function () {
     Route::delete('/medicamentos/{id_medicamento}', [MedicamentoController::class, 'destroy'])->name('medicamentos.destroy');
     
     // Rutas de Contenidos Educativos
-    Route::get('/contenidos', [AdministradorController::class, 'contenidosIndex'])->name('contenidos.index');
+    Route::get('/contenidos', [ContenidoEducativoController::class, 'index'])->name('contenidos.index');
+    Route::get('/contenidos/create', [ContenidoEducativoController::class, 'create'])->name('contenidos.create');
+    Route::post('/contenidos', [ContenidoEducativoController::class, 'store'])->name('contenidos.store');
+    Route::get('/contenidos/{id_contenido}', [ContenidoEducativoController::class, 'show'])->name('contenidos.show');
+    Route::get('/contenidos/{id_contenido}/edit', [ContenidoEducativoController::class, 'edit'])->name('contenidos.edit');
+    Route::put('/contenidos/{id_contenido}', [ContenidoEducativoController::class, 'update'])->name('contenidos.update');
+    Route::delete('/contenidos/{id_contenido}', [ContenidoEducativoController::class, 'destroy'])->name('contenidos.destroy');
+    
+    // Rutas de Recomendaciones
+    Route::get('/recomendaciones', [RecomendacionController::class, 'index'])->name('recomendaciones.index');
+    Route::get('/recomendaciones/create', [RecomendacionController::class, 'create'])->name('recomendaciones.create');
+    Route::post('/recomendaciones', [RecomendacionController::class, 'store'])->name('recomendaciones.store');
+    Route::get('/recomendaciones/{id_recomendacion}', [RecomendacionController::class, 'show'])->name('recomendaciones.show');
+    Route::get('/recomendaciones/{id_recomendacion}/edit', [RecomendacionController::class, 'edit'])->name('recomendaciones.edit');
+    Route::put('/recomendaciones/{id_recomendacion}', [RecomendacionController::class, 'update'])->name('recomendaciones.update');
+    Route::delete('/recomendaciones/{id_recomendacion}', [RecomendacionController::class, 'destroy'])->name('recomendaciones.destroy');
+    
+    // Rutas de Comorbilidades
+    Route::get('/comorbilidades', [ComorbillidadController::class, 'index'])->name('comorbilidades.index');
+    Route::get('/comorbilidades/create', [ComorbillidadController::class, 'create'])->name('comorbilidades.create');
+    Route::post('/comorbilidades', [ComorbillidadController::class, 'store'])->name('comorbilidades.store');
+    Route::get('/comorbilidades/{id_comorbilidad}', [ComorbillidadController::class, 'show'])->name('comorbilidades.show');
+    Route::get('/comorbilidades/{id_comorbilidad}/edit', [ComorbillidadController::class, 'edit'])->name('comorbilidades.edit');
+    Route::put('/comorbilidades/{id_comorbilidad}', [ComorbillidadController::class, 'update'])->name('comorbilidades.update');
+    Route::delete('/comorbilidades/{id_comorbilidad}', [ComorbillidadController::class, 'destroy'])->name('comorbilidades.destroy');
+    
+    // Rutas de Alergias
+    Route::get('/alergias', [AlergiaController::class, 'index'])->name('alergias.index');
+    Route::get('/alergias/create', [AlergiaController::class, 'create'])->name('alergias.create');
+    Route::post('/alergias', [AlergiaController::class, 'store'])->name('alergias.store');
+    Route::get('/alergias/{id_alergia}', [AlergiaController::class, 'show'])->name('alergias.show');
+    Route::get('/alergias/{id_alergia}/edit', [AlergiaController::class, 'edit'])->name('alergias.edit');
+    Route::put('/alergias/{id_alergia}', [AlergiaController::class, 'update'])->name('alergias.update');
+    Route::delete('/alergias/{id_alergia}', [AlergiaController::class, 'destroy'])->name('alergias.destroy');
+    
+    // Rutas de Síntomas
+    Route::get('/sintomas', [SintomaController::class, 'index'])->name('sintomas.index');
+    Route::get('/sintomas/create', [SintomaController::class, 'create'])->name('sintomas.create');
+    Route::post('/sintomas', [SintomaController::class, 'store'])->name('sintomas.store');
+    Route::get('/sintomas/{id_sintoma}', [SintomaController::class, 'show'])->name('sintomas.show');
+    Route::get('/sintomas/{id_sintoma}/edit', [SintomaController::class, 'edit'])->name('sintomas.edit');
+    Route::put('/sintomas/{id_sintoma}', [SintomaController::class, 'update'])->name('sintomas.update');
+    Route::delete('/sintomas/{id_sintoma}', [SintomaController::class, 'destroy'])->name('sintomas.destroy');
     
     // Rutas de Reportes
-    Route::get('/reportes', [AdministradorController::class, 'reportesIndex'])->name('reportes.index');
+    Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');
+    Route::post('/reportes/descargar', [ReporteController::class, 'descargar'])->name('reportes.descargar');
 });
 
 // Rutas de Usuarios (legacy - redirecciona a administrador)
