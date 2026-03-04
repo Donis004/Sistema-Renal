@@ -6,6 +6,16 @@ use App\Http\Controllers\AdministradorController;
 use App\Http\Controllers\ComidaController;
 use App\Http\Controllers\AlimentoController;
 
+//mario controllers
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Paciente\PerfilPacienteController;
+use App\Http\Controllers\Paciente\PacienteDashboardController;
+use App\Http\Controllers\Paciente\ComidaPacienteController;
+use App\Http\Controllers\Paciente\AlimentoPacienteController;
+use App\Http\Controllers\Paciente\MedicamentoPacienteController;
+use App\Http\Controllers\Paciente\SintomaPacienteController;
+use App\Http\Controllers\Paciente\AlertaPacienteController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -17,9 +27,10 @@ use App\Http\Controllers\AlimentoController;
 |
 */
 
+// Landing Page
 Route::get('/', function () {
-    return redirect()->route('administrador.home');
-});
+    return view('welcome'); // La vista principal
+})->name('inicio');
 
 // Rutas del Administrador
 Route::prefix('administrador')->name('administrador.')->group(function () {
@@ -75,4 +86,82 @@ Route::prefix('administrador')->name('administrador.')->group(function () {
 // Rutas de Usuarios (legacy - redirecciona a administrador)
 Route::get('/usuarios', function () {
     return redirect()->route('administrador.usuarios.index');
+});
+
+// Rutas de Autenticación
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// ==========================================
+// GRUPO DE RUTAS: PACIENTES (Protegidas)
+// ==========================================
+Route::prefix('paciente')->middleware('auth')->group(function () {
+    
+    // Rutas de Perfil
+    Route::get('/perfil/completar', [PerfilPacienteController::class, 'completar'])->name('paciente.perfil.completar');
+    Route::post('/perfil/guardar', [PerfilPacienteController::class, 'guardarPerfil'])->name('paciente.perfil.guardar');
+    
+    Route::get('/perfil', [PerfilPacienteController::class, 'show'])->name('paciente.perfil.show');
+    // Route::get('/perfil/editar', [PerfilPacienteController::class, 'edit'])->name('paciente.perfil.edit');
+
+    // Dashboard Principal
+    Route::get('/dashboard', [PacienteDashboardController::class, 'index'])->name('paciente.dashboard');
+    
+    // Control de Líquidos Rápido
+    Route::post('/liquidos', [PacienteDashboardController::class, 'storeLiquido'])->name('paciente.liquidos.store');
+
+    // Módulo de Comidas
+    Route::prefix('comidas')->name('paciente.comidas.')->group(function () {
+        Route::get('/', [ComidaPacienteController::class, 'index'])->name('index');
+        
+        // Flujo Manual
+        Route::get('/manual', [ComidaPacienteController::class, 'createManual'])->name('create_manual');
+        Route::post('/manual', [ComidaPacienteController::class, 'storeManual'])->name('store_manual');
+        
+        // Flujo Foto/IA (Vistas preparadas)
+        Route::get('/foto', [ComidaPacienteController::class, 'createFoto'])->name('create_foto');
+        Route::post('/foto', [ComidaPacienteController::class, 'procesarFoto'])->name('procesar_foto');
+        Route::post('/confirmar-ia', [ComidaPacienteController::class, 'confirmarIa'])->name('confirmar_ia');
+    });
+
+    // Módulo de Alimentos y Sugerencias
+    Route::get('/alimentos/sugerencias', [AlimentoPacienteController::class, 'sugerencias'])->name('paciente.alimentos.sugerencias');
+
+    // Módulo de Medicamentos
+    Route::prefix('medicamentos')->name('paciente.medicamentos.')->group(function () {
+        Route::get('/', [MedicamentoPacienteController::class, 'index'])->name('index');
+        Route::get('/crear', [MedicamentoPacienteController::class, 'create'])->name('create');
+        Route::post('/', [MedicamentoPacienteController::class, 'store'])->name('store');
+        Route::get('/{id}/editar', [MedicamentoPacienteController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [MedicamentoPacienteController::class, 'update'])->name('update');
+        Route::delete('/{id}', [MedicamentoPacienteController::class, 'destroy'])->name('destroy');
+        
+        // Ruta para marcar el checkbox de "Tomado"
+        Route::patch('/recordatorios/{id}/tomado', [MedicamentoPacienteController::class, 'marcarTomado'])->name('marcar_tomado');
+    });
+
+    // Rutas de Perfil
+    Route::get('/perfil/completar', [PerfilPacienteController::class, 'completar'])->name('paciente.perfil.completar');
+    Route::post('/perfil/guardar', [PerfilPacienteController::class, 'guardarPerfil'])->name('paciente.perfil.guardar');
+    
+    Route::get('/perfil', [PerfilPacienteController::class, 'show'])->name('paciente.perfil.show');
+    Route::get('/perfil/editar', [PerfilPacienteController::class, 'edit'])->name('paciente.perfil.edit');
+    Route::put('/perfil/editar', [PerfilPacienteController::class, 'update'])->name('paciente.perfil.update');
+
+    // Módulo de Síntomas
+    Route::prefix('sintomas')->name('paciente.sintomas.')->group(function () {
+        Route::get('/', [SintomaPacienteController::class, 'index'])->name('index');
+        Route::get('/registrar', [SintomaPacienteController::class, 'create'])->name('create');
+        Route::post('/', [SintomaPacienteController::class, 'store'])->name('store');
+    });
+
+
+    // Módulo de Alertas
+    Route::prefix('alertas')->name('paciente.alertas.')->group(function () {
+        Route::get('/', [AlertaPacienteController::class, 'index'])->name('index');
+        Route::post('/recalcular', [AlertaPacienteController::class, 'recalcular'])->name('recalcular');
+        Route::patch('/{id}/atendida', [AlertaPacienteController::class, 'marcarAtendida'])->name('atendida');
+    });
+    
 });
