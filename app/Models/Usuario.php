@@ -111,4 +111,12 @@ class Usuario extends Authenticatable
     {
         return $this->rol === 'PACIENTE';
     }
+
+    /**
+     * Override the default password field for Laravel Auth.
+     */
+    public function getAuthPassword()
+    {
+        return $this->password_hash;
+    }
 }

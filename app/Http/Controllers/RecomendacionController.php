@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Recomendacion;
+use App\Models\Paciente;
+use App\Models\Usuario;
 use Illuminate\Http\Request;
+use Auth;
 
 class RecomendacionController extends Controller
 {
@@ -12,8 +15,20 @@ class RecomendacionController extends Controller
      */
     public function index()
     {
-        $recomendaciones = Recomendacion::with(['paciente', 'profesional'])->get();
-        return response()->json($recomendaciones);
+        $recomendaciones = Recomendacion::with('paciente.usuario', 'profesional')
+            ->latest()
+            ->paginate(15);
+        return view('administrador.recomendaciones.index', compact('recomendaciones'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        $pacientes = Paciente::with('usuario')->get();
+        $profesionales = Usuario::whereIn('rol', ['DOCTOR', 'NUTRICIONISTA'])->get();
+        return view('administrador.recomendaciones.create', compact('pacientes', 'profesionales'));
     }
 
     /**
@@ -24,56 +39,57 @@ class RecomendacionController extends Controller
         $validated = $request->validate([
             'id_paciente' => 'required|exists:pacientes,id_paciente',
             'id_profesional' => 'required|exists:usuarios,id_usuario',
-            'mensaje' => 'required|text',
-            'fecha' => 'datetime',
+            'mensaje' => 'required|string',
         ]);
 
-        $recomendacion = Recomendacion::create($validated);
-        return response()->json($recomendacion, 201);
+        Recomendacion::create($validated);
+        return redirect()->route('administrador.recomendaciones.index')->with('success', 'Recomendación creada exitosamente.');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Recomendacion $recomendacion)
+    public function show($id_recomendacion)
     {
-        return response()->json($recomendacion);
+        $recomendacion = Recomendacion::with('paciente.usuario', 'profesional')->findOrFail($id_recomendacion);
+        return view('administrador.recomendaciones.show', compact('recomendacion'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit($id_recomendacion)
+    {
+        $recomendacion = Recomendacion::findOrFail($id_recomendacion);
+        $pacientes = Paciente::with('usuario')->get();
+        $profesionales = Usuario::whereIn('rol', ['DOCTOR', 'NUTRICIONISTA'])->get();
+        return view('administrador.recomendaciones.edit', compact('recomendacion', 'pacientes', 'profesionales'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Recomendacion $recomendacion)
+    public function update(Request $request, $id_recomendacion)
     {
+        $recomendacion = Recomendacion::findOrFail($id_recomendacion);
+
         $validated = $request->validate([
-            'id_paciente' => 'exists:pacientes,id_paciente',
-            'id_profesional' => 'exists:usuarios,id_usuario',
-            'mensaje' => 'text',
-            'fecha' => 'datetime',
+            'id_paciente' => 'required|exists:pacientes,id_paciente',
+            'id_profesional' => 'required|exists:usuarios,id_usuario',
+            'mensaje' => 'required|string',
         ]);
 
         $recomendacion->update($validated);
-        return response()->json($recomendacion);
+        return redirect()->route('administrador.recomendaciones.show', $recomendacion->id_recomendacion)->with('success', 'Recomendación actualizada exitosamente.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Recomendacion $recomendacion)
+    public function destroy($id_recomendacion)
     {
+        $recomendacion = Recomendacion::findOrFail($id_recomendacion);
         $recomendacion->delete();
-        return response()->json(null, 204);
-    }
-
-    /**
-     * Get recommendations by patient.
-     */
-    public function porPaciente($id_paciente)
-    {
-        $recomendaciones = Recomendacion::where('id_paciente', $id_paciente)
-            ->with('profesional')
-            ->orderBy('fecha', 'desc')
-            ->get();
-        return response()->json($recomendaciones);
+        return redirect()->route('administrador.recomendaciones.index')->with('success', 'Recomendación eliminada exitosamente.');
     }
 }

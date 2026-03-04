@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Alergia;
+use App\Models\Comorbilidad;
 use App\Models\Paciente;
+use App\Models\Usuario;
 use Illuminate\Http\Request;
 
 class PacienteController extends Controller
@@ -12,8 +15,17 @@ class PacienteController extends Controller
      */
     public function index()
     {
-        $pacientes = Paciente::with('usuario')->get();
-        return response()->json($pacientes);
+        $pacientes = Paciente::with('usuario')->paginate(15);
+        return view('administrador.pacientes.index', compact('pacientes'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        $usuarios = Usuario::all();
+        return view('administrador.pacientes.create', compact('usuarios'));
     }
 
     /**
@@ -23,136 +35,83 @@ class PacienteController extends Controller
     {
         $validated = $request->validate([
             'id_usuario' => 'required|exists:usuarios,id_usuario',
-            'fecha_nacimiento' => 'date',
-            'sexo' => 'in:M,F,O',
-            'peso_kg' => 'decimal:2',
-            'presion_arterial' => 'string|max:10',
-            'etapa_erc' => 'in:1,2,3a,3b,4,5',
-            'egfr' => 'decimal:2',
-            'dieta_prescrita' => 'text',
-            'perfil_completo' => 'boolean',
+            'fecha_nacimiento' => 'nullable|date',
+            'sexo' => 'required|in:M,F,O',
+            'peso_kg' => 'nullable|numeric|min:0',
+            'presion_arterial' => 'nullable|string|max:10',
+            'etapa_erc' => 'required|in:1,2,3a,3b,4,5',
+            'egfr' => 'nullable|numeric|min:0',
+            'dieta_prescrita' => 'nullable|string',
+            'perfil_completo' => 'nullable|boolean',
         ]);
 
-        $paciente = Paciente::create($validated);
-        return response()->json($paciente, 201);
+        Paciente::create($validated);
+        return redirect()->route('administrador.pacientes.index')->with('success', 'Paciente creado exitosamente.');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Paciente $paciente)
+    public function show($id_paciente)
     {
-        $paciente->load(['usuario', 'alergias', 'comorbilidades', 'limitesNutricionales']);
-        return response()->json($paciente);
+        $paciente = Paciente::with(['usuario', 'alergias', 'comorbilidades', 'limitesNutricionales'])->findOrFail($id_paciente);
+        return view('administrador.pacientes.show', compact('paciente'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit($id_paciente)
+    {
+        $paciente = Paciente::with(['alergias', 'comorbilidades'])->findOrFail($id_paciente);
+        $usuarios = Usuario::all();
+        $comorbilidades = Comorbilidad::all();
+        $alergias = Alergia::all();
+        return view('administrador.pacientes.edit', compact('paciente', 'usuarios', 'comorbilidades', 'alergias'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Paciente $paciente)
+    public function update(Request $request, $id_paciente)
     {
+        $paciente = Paciente::findOrFail($id_paciente);
+
         $validated = $request->validate([
-            'id_usuario' => 'exists:usuarios,id_usuario',
-            'fecha_nacimiento' => 'date',
-            'sexo' => 'in:M,F,O',
-            'peso_kg' => 'decimal:2',
-            'presion_arterial' => 'string|max:10',
-            'etapa_erc' => 'in:1,2,3a,3b,4,5',
-            'egfr' => 'decimal:2',
-            'dieta_prescrita' => 'text',
-            'perfil_completo' => 'boolean',
+            'id_usuario' => 'required|exists:usuarios,id_usuario',
+            'fecha_nacimiento' => 'nullable|date',
+            'sexo' => 'required|in:M,F,O',
+            'peso_kg' => 'nullable|numeric|min:0',
+            'presion_arterial' => 'nullable|string|max:10',
+            'etapa_erc' => 'required|in:1,2,3a,3b,4,5',
+            'egfr' => 'nullable|numeric|min:0',
+            'dieta_prescrita' => 'nullable|string',
+            'perfil_completo' => 'nullable|boolean',
+            'comorbilidades' => 'nullable|array',
+            'comorbilidades.*' => 'exists:comorbilidades,id_comorbilidad',
+            'alergias' => 'nullable|array',
+            'alergias.*' => 'exists:alergias,id_alergia',
         ]);
 
         $paciente->update($validated);
-        return response()->json($paciente);
+        
+        // Sync comorbidities and allergies
+        $paciente->comorbilidades()->sync($request->input('comorbilidades', []));
+        $paciente->alergias()->sync($request->input('alergias', []));
+        
+        return redirect()->route('administrador.pacientes.show', $paciente->id_paciente)->with('success', 'Paciente actualizado exitosamente.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Paciente $paciente)
+    public function destroy($id_paciente)
     {
+        $paciente = Paciente::findOrFail($id_paciente);
         $paciente->delete();
-        return response()->json(null, 204);
+        return redirect()->route('administrador.pacientes.index')->with('success', 'Paciente eliminado exitosamente.');
     }
 
-    /**
-     * Get patient's allergies.
-     */
-    public function alergias(Paciente $paciente)
-    {
-        return response()->json($paciente->alergias);
-    }
-
-    /**
-     * Get patient's comorbidities.
-     */
-    public function comorbilidades(Paciente $paciente)
-    {
-        return response()->json($paciente->comorbilidades);
-    }
-
-    /**
-     * Get patient's nutritional limits.
-     */
-    public function limitesNutricionales(Paciente $paciente)
-    {
-        return response()->json($paciente->limitesNutricionales);
-    }
-
-    /**
-     * Get patient's meals.
-     */
-    public function comidas(Paciente $paciente)
-    {
-        return response()->json($paciente->comidas);
-    }
-
-    /**
-     * Get patient's liquid consumption.
-     */
-    public function consumoLiquidos(Paciente $paciente)
-    {
-        return response()->json($paciente->consumoLiquidos);
-    }
-
-    /**
-     * Get patient's medications.
-     */
-    public function medicamentos(Paciente $paciente)
-    {
-        return response()->json($paciente->pacienteMedicamentos);
-    }
-
-    /**
-     * Get patient's symptoms.
-     */
-    public function sintomas(Paciente $paciente)
-    {
-        return response()->json($paciente->registroSintomas);
-    }
-
-    /**
-     * Get patient's clinical alerts.
-     */
-    public function alertas(Paciente $paciente)
-    {
-        return response()->json($paciente->alertaClinicas);
-    }
-
-    /**
-     * Get patient's recommendations.
-     */
-    public function recomendaciones(Paciente $paciente)
-    {
-        return response()->json($paciente->recomendaciones);
-    }
-
-    /**
-     * Get patient's weekly menus.
-     */
-    public function menus(Paciente $paciente)
-    {
-        return response()->json($paciente->menuSemanales);
-    }
+    // ========== MÉTODOS ADICIONALES PARA API (OPCIONAL) ==========
+    // Los siguientes métodos pueden ser utilizados para endpoints API si es necesario
 }
